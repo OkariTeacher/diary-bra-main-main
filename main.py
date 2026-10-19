@@ -19,13 +19,13 @@ db = SQLAlchemy(app)
 class Card(db.Model):
     # Criando campos
     # id = coluna do banco de dados(inteiro, chave primária)
-    id = 
+    id = db.Column(db.Integer, primary_key=True)
     # Titulo = coluna do banco de dados(string com limite de 100 caracteres, não nula)
-    title = 
+    title = db.Column(db.String(100), nullable=False)
     # Descrição = coluna do banco de dados(string com limite de 300 caracteres, não nula)
-    subtitle = 
+    subtitle = db.Column(db.String(300), nullable=False)
     # Texto = coluna do banco de dados(texto, não nula)
-    text = 
+    text = db.Column(db.Text(), nullable=False)
 
     # Mostrando o Objeto e o ID
     def __repr__(self):
@@ -40,11 +40,11 @@ def index():
 # Exibindo os objetos do Banco de Dados
 # TAREFA 2 EXIBIR OS CARTÕES ORDENADOS PELO ID
 # cards = Card.query. ordenado por (Card.id).todos() 
-    cards = 
+    cards = Card.query.order_by(Card.id).all()
 
 
     return render_template('index.html',
-                           #cards = cards
+                           cards = cards
 
                            )
 
@@ -55,7 +55,7 @@ def index():
 def card(id):
     # TAREFA 2.1 EXIBIR O CARTÃO PELO ID
     #card = Card.query. obter(id)
-    card = 
+    card = Card.query.get(id)
 
     return render_template('card.html', card=card)
 
@@ -79,10 +79,12 @@ def form_create():
 
         # TAREFA 3 CRIAR UM OBJETO CARD COM OS DADOS DO FORMULÁRIO
         # card = Card(titulo=titulo, subtitulo=subtitulo, texto=texto)
-        card = 
+        card = Card(title=title, subtitle=subtitle, text=text)
+
         
         #adicione a sessão com db.session.add(card) e depois faça o commit com db.session.commit()
-        
+        db.session.add(card)
+        db.session.commit()
         
 ####################################################################################################    
         return redirect('/')
