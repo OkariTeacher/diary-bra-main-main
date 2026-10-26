@@ -37,9 +37,10 @@ class Card(db.Model):
 
 class User(db.Model):
     #LEMBRE COMO CRIAMOS O BANCO DE DADOS ACIMA, TODOS SERÃO COLUNAS, MAS DE TIPOS DIFERENTES
-     id = db.Column(db.Integer, primary_key=True)
-     email = db.Column(db.String(100), nullable=False)
-     password = db.Column(db.String(100), nullable=False)
+    
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(100), nullable=False)
+    password = db.Column(db.String(50), nullable=False)
 
 #####################################################################
 
@@ -56,15 +57,17 @@ def login():
 
 # TAREFA 4. Verificação do usuário #####################################################################
     #Aqui precisamos buscar todos os usuarios no banco utilizando User.query.all() 
-        #users_db = 
+        users_db = User.query.all()
 
     #Aqui criaremos a condição de login, onde form_login e password serão comparados com os dados do banco de dados, e caso sejam iguais, o usuário será redirecionado para a página de conteúdo
-        #for user in users_db:
-           
+        for user in users_db:
+            if user.email == form_login and user.password == form_password:
+                session['user_email'] = user.email
+                return redirect('/index')
 
     #Aqui teremos o erro caso o usuário não seja encontrado, e será exibido na tela de login
-        #error =
-        #return
+        error = "Usuário ou senha incorretos"
+        return render_template('login.html', error=error)
     
     else:
         return render_template('login.html')
@@ -78,9 +81,11 @@ def reg():
 
 # TAREFA 3. Salvar usuário no banco #####################################################################
         #DENTRO DO USUÁRIO PRECISAMOS DE EMAIL E SENHA, QUE JÁ FORAM CRIADOS LOGO ACIMA COMO EMAIL E PASSWORD
-        
-
+        user = User(email=email, password=password)
         #AGORA PRECISAMOS ADICIONAR O USUÁRIO AO BANCO DE DADOS E COMMITAR, UTILIZE db.session.add(variável) E db.session.commit() PARA ISSO
+
+        db.session.add(user)
+        db.session.commit()
 
         return redirect('/')
 
@@ -94,10 +99,10 @@ def index():
 
 # TAREFA 4.3 Mostrar apenas os cards do usuário logado ###################################################
     #O email será igual ao email da session
-    #email =
+    email = session.get('user_email')
     
     #Não será order_by, mas sim filter_by, para filtrar apenas os cards do usuário logado
-    cards = Card.query.order_by(Card.id).all()
+    cards = Card.query.filter_by(user_email=email).all()
 
     return render_template('index.html',
                            cards=cards
@@ -132,10 +137,10 @@ def form_create():
 
 # TAREFA 4.2 Criar card em nome do usuário logado
         #O email será igual ao email da session
-        #email = 
+        email = session.get('user_email')
         
         #Precisamos adicionar o email do usuário logado ao card, para isso, precisamos adicionar o campo user_email ao card, e o valor será o email da session
-        card = Card(title=title, subtitle=subtitle, text=text)
+        card = Card(title=title, subtitle=subtitle, text=text, user_email=email)
         db.session.add(card)
         db.session.commit()
 
